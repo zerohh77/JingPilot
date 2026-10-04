@@ -198,7 +198,7 @@ export class RenewalRunner {
     });
     if (found) {
       this.confirmPending(pending, found);
-      this.logger?.info(`历史未确认提交已由 stateList 确认，applyId=${found.applyId}`);
+      this.logger?.info('历史未确认提交已由 stateList 确认');
       await this.notifyBestEffort(
         '进京证自动续办已确认',
         `车辆：${maskPlate(vehicle.licenseNumber)}\n类型：${pending.entryType}\n申请日期：${pending.applyDate}\n状态：${found.statusName}`,
@@ -339,7 +339,7 @@ export class RenewalRunner {
       return null;
     }
     this.confirmPending(pending, record);
-    this.logger?.info(`二次确认成功：${record.statusName} applyId=${record.applyId}`);
+    this.logger?.info(`二次确认成功：${record.statusName}`);
     await this.notifyBestEffort(
       '进京证自动续办已提交',
       `车辆：${maskPlate(checked.vehicle.licenseNumber)}\n类型：${pending.entryType}\n申请日期：${pending.applyDate}\n状态：${record.statusName}`,

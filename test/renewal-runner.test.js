@@ -12,7 +12,7 @@ import { createSafeNotificationSender } from '../src/lib/runtime.js';
 
 const noopLogger = { info() {}, warn() {}, error() {} };
 
-function setup({ states, submit, config = {}, sendNotification, applicationDetail, districtItems, locationResolver } = {}) {
+function setup({ states, submit, config = {}, sendNotification, applicationDetail, districtItems, locationResolver, logger = noopLogger } = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'jingpilot-runner-'));
   const store = new StateStore({ path: join(dir, 'state.json') });
   let submitCount = 0;
@@ -45,7 +45,7 @@ function setup({ states, submit, config = {}, sendNotification, applicationDetai
       ...config,
     },
     stateStore: store,
-    logger: noopLogger,
+    logger,
     sendNotification: sendNotification || (async (title, body, displayDetails) => {
       notifications.push({ title, body, displayDetails });
       return [{ status: 'fulfilled', value: undefined }];
@@ -93,12 +93,15 @@ test('未配置通知时模拟查询与已确认提交流程均正常', async ()
 });
 
 test('真实流程二次查询后只 POST 一次，并由 stateList 确认', async () => {
-  const context = setup({ states: [oldState, oldState, confirmedState] });
+  const messages = [];
+  const context = setup({ states: [oldState, oldState, confirmedState], logger: { info: (message) => messages.push(message) } });
   const result = await context.runner.run();
   assert.equal(result.outcome, 'submitted-confirmed');
   assert.equal(context.getSubmitCount(), 1);
   assert.equal(context.store.load().pending_attempt, null);
   assert.equal(context.store.load().last_apply_id, 'apply-new');
+  assert.match(messages.join('\n'), /二次确认成功：审核中/);
+  assert.doesNotMatch(messages.join('\n'), /applyId=/);
   context.cleanup();
 });
 
@@ -306,11 +309,12 @@ test('历史未确认提交恢复后沿用固定地点提示标记', async () =>
 });
 
 test('历史提交确认通知只使用本次找到的申请有效期', async () => {
+  const messages = [];
   const newState = stateData({
     primary: [record('审核通过(生效中)')],
     secondary: [record('审核中', { applyId: 'apply-new', yxqs: '2026-09-23', yxqz: '2026-09-29' })],
   });
-  const context = setup({ states: [newState] });
+  const context = setup({ states: [newState], logger: { info: (message) => messages.push(message) } });
   context.store.update({
     pending_attempt: {
       id: 'attempt-1', outcome: 'uncertain', plate: 'TEST-PLATE-1', entryType: '六环外',
@@ -320,6 +324,8 @@ test('历史提交确认通知只使用本次找到的申请有效期', async ()
   assert.equal((await context.runner.run()).outcome, 'recovered-confirmed');
   assert.equal(context.getStateCount(), 1);
   assert.deepEqual(context.notifications[0].displayDetails, { validFrom: '2026-09-23', validTo: '2026-09-29' });
+  assert.match(messages.join('\n'), /历史未确认提交已由 stateList 确认/);
+  assert.doesNotMatch(messages.join('\n'), /applyId=/);
   context.cleanup();
 });
 

@@ -23,6 +23,7 @@ export function maskSecret(value = '') {
 
 export function redact(text = '') {
   return String(text)
+    .replace(/(\bapplyId(?:Old)?["']?\s*[:=：]\s*["']?)([^"'\s,}]+)/gi, '$1***')
     .replace(/(Authorization\s*[:=]\s*)([^\s,}]+)/gi, '$1***')
     .replace(/(barks?:\/\/[^/\s]+\/)([^\s]+)/gi, '$1***')
     .replace(/(wecom:\/\/)([^\s]+)/gi, '$1***')

@@ -1,6 +1,6 @@
 {
   "name": "jingpilot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "JingPilot - 进京证自动查询、续办与无人值守管理工具",
   "repository": {
     "type": "git",
