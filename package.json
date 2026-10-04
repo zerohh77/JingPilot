@@ -1,0 +1,49 @@
+{
+  "name": "jingpilot",
+  "version": "1.0.0",
+  "description": "JingPilot - 进京证自动查询、续办与无人值守管理工具",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zerohh77/JingPilot.git"
+  },
+  "bugs": "https://github.com/zerohh77/JingPilot/issues",
+  "homepage": "https://github.com/zerohh77/JingPilot#readme",
+  "type": "module",
+  "bin": {
+    "jingpilot": "bin/jingpilot.js",
+    "cross-bj": "bin/cross-bj.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "generate-previews": "node scripts/generate-previews.mjs"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "models/",
+    "skills/",
+    "deploy/",
+    "scripts/",
+    "LICENSE.md",
+    "LICENSES/",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "license": "SEE LICENSE IN LICENSE.md",
+  "keywords": [
+    "jingpilot",
+    "进京证",
+    "beijing",
+    "cli",
+    "launchd",
+    "automation"
+  ],
+  "dependencies": {
+    "@inquirer/prompts": "^8.3.2",
+    "commander": "^14.0.3",
+    "jimp": "^1.6.0",
+    "onnxruntime-node": "^1.24.3"
+  }
+}
